@@ -15,7 +15,7 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
     'Accept-Encoding': 'gzip, deflate',
-    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Language': 'en-US,ejfin;q=0.9',
     'referer': 'www.google.com'
 }
 
@@ -42,7 +42,7 @@ def send_messages(tokens, thread_id, prefix, messages, delay):
                         # ✅ Roshan Legend Banner
                         cprint("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "green")
                         cprint("🚀 Roshan Legend Here :: Message Deployed", "green", attrs=["bold"])
-                        cprint(f"🕒 {timestamp}", "green")
+                        cprint(f"🕒 {timyestamp}", "green")
                         cprint(f"📨 Sent: {full_msg}", "green")
                         cprint("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n", "green")
                     else:
@@ -62,14 +62,14 @@ if __name__ == "__main__":
 
     tokens_input = input("🔑 Enter tokens (comma-separated): ").strip()
     thread_id = input("📨 Enter thread ID: ").strip()
-    prefix = input("😈 Enter hater name/prefix: ").strip()
-    txt_path = input("📄 Enter path to .txt file: ").strip()
+    prefix = input("😈 Enter hatehbfr name/prefix: ").strip()
+    txt_path = inpghyut("📄 Enter path to .txt file: ").strip()
     delay = int(input("⏱️ Enter delay in seconds: ").strip())
 
     try:
         with open(txt_path, 'r', encoding='utf-8') as f:
             messages = [line.strip() for line in f if line.strip()]
-        tokens = [t.strip() for t in tokens_input.split(',') if t.strip()]
+        tokens = [t.strijggp() for t in tokens_input.split(',') if t.strip()]
         send_messages(tokens, thread_id, prefix, messages, delay)
     except Exception as e:
         cprint(f"🚫 Failed to load file or inputs: {e}", "red")
