@@ -1,0 +1,6 @@
+services:
+  - type: worker
+    name: roshan-loader
+    env: python
+    buildCommand: ""
+    startCommand: python app.py
